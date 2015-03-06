@@ -7,5 +7,11 @@ Requirements:
 * pyqt5
 
 Build & Run:
+
+```
 pyuic5 gpuchooser.ui -o ui_gpuchooser.py
 ./gpuchooser.py
+```
+
+![Screenshot](http://haagch.frickel.club/files/gpuchooser.png "Screenshot")
+

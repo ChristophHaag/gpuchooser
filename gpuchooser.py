@@ -2,9 +2,7 @@
 import subprocess
 from xml.dom import minidom
 
-from PyQt5.QtGui import  QStandardItemModel, QStandardItem
-from PyQt5.QtWidgets import QMainWindow, QApplication, QListView, QHBoxLayout, QLabel, QLineEdit, QComboBox, QCheckBox, \
-    QWidget
+from PyQt5.QtWidgets import QMainWindow, QApplication, QListView, QHBoxLayout, QLabel, QLineEdit, QComboBox, QCheckBox
 
 from subprocess import Popen, PIPE
 import sys

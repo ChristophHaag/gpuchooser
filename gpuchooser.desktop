@@ -1,0 +1,9 @@
+[Desktop Entry]
+Encoding=UTF-8
+Name=PRIME GPU Chooser
+Comment=Choose which gpu an application is rendered on
+Exec=gpuchooser
+Icon=/usr/share/driconf/driconf-icon.png
+Type=Application
+Categories=GNOME;Application;Settings;AdvancedSettings;
+StartupNotify=true

@@ -9,8 +9,8 @@ Requirements:
 Build & Run:
 
 ```
-pyuic5 gpuchooser.ui -o ui_gpuchooser.py
-./gpuchooser.py
+pyuic5 gpuchooser.ui -o ui_gpuchooser.py # this is optional
+./gpuchooser
 ```
 
 ![Screenshot](http://haagch.frickel.club/files/gpuchooser.png "Screenshot")

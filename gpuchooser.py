@@ -2,9 +2,9 @@
 import subprocess
 from xml.dom import minidom
 
-from PyQt5.QtWidgets import QMainWindow, QApplication, QListView, QHBoxLayout, QLabel, QLineEdit, QComboBox, QCheckBox
+from PyQt5.QtWidgets import QMainWindow, QApplication, QHBoxLayout, QLabel, QLineEdit, QComboBox, QCheckBox
 
-from subprocess import Popen, PIPE
+from subprocess import PIPE
 import sys
 import ui_gpuchooser
 from glob import glob
@@ -12,9 +12,13 @@ import locale
 import xml.etree.ElementTree as ET
 import os
 from os.path import expanduser
-home = expanduser("~")
 
+# global variables: driconfroot, drircfile, xmlvalues, tagids
+home = expanduser("~")
 drircfile = home + "/.drirc"
+xmlvalues = []
+tagids = []
+
 
 if not os.path.isfile(drircfile):
     print(drircfile + " does not exist, please run driconf once, it will create the file...")
@@ -22,9 +26,6 @@ if not os.path.isfile(drircfile):
 if not os.access(drircfile, os.W_OK):
     print("WARNING: " + drircfile + " is not writable. You can not save your changes!")
 
-tree = ET.parse(drircfile) # TODO: when not exist
-driconfroot = tree.getroot()
-xmlvalues = []
 
 def removealldeviceel(root):
     to_remove = []
@@ -32,7 +33,7 @@ def removealldeviceel(root):
         if devicedriver.get("driver") == "loader":
             to_remove.append(devicedriver)
     for i in to_remove:
-        driconfroot.remove(i)
+        root.remove(i)
 
 def getdeviceel(root):
     for devicedriver in root:
@@ -41,8 +42,6 @@ def getdeviceel(root):
             return deviceel
     #else none
 
-deviceel = getdeviceel(driconfroot)
-#assert isinstance(deviceel, ET.Element) or none
 
 def gpuname_from_tag(tag):
     for i in tagids:
@@ -55,40 +54,6 @@ def gpuindex_from_tag(tag):
         if i["tag"] == tag:
             return index
 
-for i in deviceel:
-    gputag = i.find("option").get("value")
-    #print (gpu)
-    gpuname = i.get("name")
-    gpupath = i.get("executable")
-    xmlvalues.append({
-        "desc": gpuname,
-        "path": gpupath,
-        "tag": gputag
-    })
-
-
-gpupaths = glob("/sys/class/drm/card?") # only 9 cards supported
-gpucards = [g.split("/")[-1] for g in gpupaths] #todo: find out names
-tagids = []
-for index,i in enumerate(gpucards):
-    #print("reading ", i)
-    udev = subprocess.Popen(["udevadm", "info", "/dev/dri/" + i], stdout=PIPE).communicate()
-
-    for line in udev[0].split(b"\n"):
-        if line:
-            decoded = line.decode(locale.getdefaultlocale()[1])
-            id = "ID_PATH_TAG"
-            #print("line: ",  decoded)
-            if decoded.find(id) != -1:
-                tag = decoded.split("=")[1]
-                #print("tag id:", decoded)
-                tagids.append({
-                    "tag": tag.strip(),
-                    "carddev": i,
-                    "name": i # TODO: proper name
-                })
-                continue
-#print("tagids", tagids)
 
 class Entry(QHBoxLayout):
     entries = []
@@ -226,7 +191,51 @@ class MainWindow(QMainWindow, ui_gpuchooser.Ui_MainWindow):
         self.mainvertlayout.addLayout(horiz)
         horiz.descriptionle.setFocus()
 
-app = QApplication(sys.argv)
-mainwindow = MainWindow()
-mainwindow.show()
-sys.exit(app.exec_())
+
+def main():
+    global driconfroot
+    tree = ET.parse(drircfile)
+    driconfroot = tree.getroot()
+
+
+    deviceel = getdeviceel(driconfroot)
+    #assert isinstance(deviceel, ET.Element) or none
+
+    for i in deviceel:
+        gputag = i.find("option").get("value")
+        #print (gpu)
+        gpuname = i.get("name")
+        gpupath = i.get("executable")
+        xmlvalues.append({
+            "desc": gpuname,
+            "path": gpupath,
+            "tag": gputag
+        })
+
+
+    gpupaths = glob("/sys/class/drm/card?") # only 9 cards supported
+    gpucards = [g.split("/")[-1] for g in gpupaths] #todo: find out names
+    for index,i in enumerate(gpucards):
+        #print("reading ", i)
+        udev = subprocess.Popen(["udevadm", "info", "/dev/dri/" + i], stdout=PIPE).communicate()
+
+        for line in udev[0].split(b"\n"):
+            if line:
+                decoded = line.decode(locale.getdefaultlocale()[1])
+                id = "ID_PATH_TAG"
+                #print("line: ",  decoded)
+                if decoded.find(id) != -1:
+                    tag = decoded.split("=")[1]
+                    #print("tag id:", decoded)
+                    tagids.append({
+                        "tag": tag.strip(),
+                        "carddev": i,
+                        "name": i # TODO: proper name
+                    })
+                    continue
+    #print("tagids", tagids)
+
+    app = QApplication(sys.argv)
+    mainwindow = MainWindow()
+    mainwindow.show()
+    sys.exit(app.exec_())

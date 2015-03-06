@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+from PyQt5 import QtCore
 import subprocess
 from xml.dom import minidom
 
@@ -129,6 +130,8 @@ class MainWindow(QMainWindow, ui_gpuchooser.Ui_MainWindow):
         self.statuslabel = QLabel()
         self.statusbar.addWidget(self.statuslabel)
 
+        self.mainvertlayout.setAlignment(QtCore.Qt.AlignTop)
+
         for i in xmlvalues:
             gputag = i["tag"]
             desc = i["desc"]
@@ -191,6 +194,17 @@ class MainWindow(QMainWindow, ui_gpuchooser.Ui_MainWindow):
         self.mainvertlayout.addLayout(horiz)
         horiz.descriptionle.setFocus()
 
+def gpuname_from_glxinfo(tag):
+    env = os.environ.copy()
+    env["DRI_PRIME"] = tag
+    glxinfo = subprocess.Popen(["glxinfo"], stdout=PIPE, env=env).communicate()
+    #print(glxinfo)
+    for line in glxinfo[0].split(b"\n"):
+        if line:
+            decoded = line.decode(locale.getdefaultlocale()[1])
+            if decoded.find("OpenGL renderer string") != -1:
+                renderer = decoded.replace("OpenGL renderer string: ", "")
+                return renderer
 
 def main():
     global driconfroot
@@ -227,10 +241,11 @@ def main():
                 if decoded.find(id) != -1:
                     tag = decoded.split("=")[1]
                     #print("tag id:", decoded)
+                    gpuname = gpuname_from_glxinfo(tag)
                     tagids.append({
                         "tag": tag.strip(),
                         "carddev": i,
-                        "name": i # TODO: proper name
+                        "name": gpuname # TODO: proper name
                     })
                     continue
     #print("tagids", tagids)

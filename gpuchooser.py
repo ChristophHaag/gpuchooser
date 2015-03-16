@@ -20,12 +20,33 @@ drircfile = home + "/.drirc"
 xmlvalues = []
 tagids = []
 
-
 if not os.path.isfile(drircfile):
     print(drircfile + " does not exist, please run driconf once, it will create the file...")
     exit(1)
 if not os.access(drircfile, os.W_OK):
     print("WARNING: " + drircfile + " is not writable. You can not save your changes!")
+
+def find_steam_executables():
+    librarydirfile = home + "/.local/share/Steam/SteamApps/libraryfolders.vdf"
+    defaultlibrary = home + "/.local/share/Steam/SteamApps/"
+    if os.path.isfile(librarydirfile) and os.access(drircfile, os.R_OK):
+        import vdf
+        import fnmatch
+        lf = vdf.parse(librarydirfile)
+        librarydirs = list(lf["LibraryFolders"].values())
+        librarydirs.append(defaultlibrary)
+        execs = []
+        for ld in librarydirs:
+            print ("Searching executables in " + ld)
+            rootPath = ld
+
+            for root, dirs, files in os.walk(rootPath):
+                for filename in fnmatch.filter(files, "*"):
+                    fn = os.path.join(root, filename)
+                    if os.access(fn, os.X_OK):
+                        execs.append(fn)
+        print(execs)
+        return execs
 
 
 def removealldeviceel(root):
@@ -208,6 +229,9 @@ def gpuname_from_glxinfo(tag):
 
 def main():
     global driconfroot
+
+    #steamexecs = find_steam_executables() #TODO: filter out massive noise due to some devs putting +x on everything
+
     tree = ET.parse(drircfile)
     driconfroot = tree.getroot()
 

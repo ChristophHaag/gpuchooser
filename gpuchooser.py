@@ -116,7 +116,7 @@ class Entry(QHBoxLayout):
 
         self.gpuindexbox = QComboBox()
         for tid in tagids:
-            self.gpuindexbox.addItem(tid["name"])
+            self.gpuindexbox.addItem(tid["carddev"] + ": " + tid["name"])
 
         self.gpuindexbox.setCurrentIndex(gpuindex)
         self.addWidget(self.gpuindexbox)

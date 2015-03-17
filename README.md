@@ -14,7 +14,7 @@ pyuic5 gpuchooser.ui -o ui_gpuchooser.py # this is optional
 ./gpuchooser
 ```
 
-![Screenshot](http://haagch.frickel.club/files/gpuchooser.png "Screenshot")
+![Screenshot](http://haagch.frickel.club/files/gpuchooser2.png "Screenshot")
 
 Credits:
 https://github.com/rossengeorgiev/vdf-parser

@@ -239,16 +239,17 @@ def main():
     deviceel = getdeviceel(driconfroot)
     #assert isinstance(deviceel, ET.Element) or none
 
-    for i in deviceel:
-        gputag = i.find("option").get("value")
-        #print (gpu)
-        gpuname = i.get("name")
-        gpupath = i.get("executable")
-        xmlvalues.append({
-            "desc": gpuname,
-            "path": gpupath,
-            "tag": gputag
-        })
+    if deviceel:
+        for i in deviceel:
+            gputag = i.find("option").get("value")
+            #print (gpu)
+            gpuname = i.get("name")
+            gpupath = i.get("executable")
+            xmlvalues.append({
+                "desc": gpuname,
+                "path": gpupath,
+                "tag": gputag
+            })
 
 
     gpupaths = glob("/sys/class/drm/card?") # only 9 cards supported

@@ -222,7 +222,7 @@ def gpuname_from_glxinfo(tag):
     #print(glxinfo)
     for line in glxinfo[0].split(b"\n"):
         if line:
-            decoded = line.decode(locale.getdefaultlocale()[1])
+            decoded = line.decode("UTF-8")
             if decoded.find("OpenGL renderer string") != -1:
                 renderer = decoded.replace("OpenGL renderer string: ", "")
                 return renderer
@@ -260,7 +260,7 @@ def main():
 
         for line in udev[0].split(b"\n"):
             if line:
-                decoded = line.decode(locale.getdefaultlocale()[1])
+                decoded = line.decode("UTF-8")
                 id = "ID_PATH_TAG"
                 #print("line: ",  decoded)
                 if decoded.find(id) != -1:
